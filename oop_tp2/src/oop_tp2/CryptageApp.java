@@ -6,10 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class CryptageApp extends JFrame implements ActionListener {
+	private JButton cryptageButton, playfairButton;
     private JRadioButton cryptageRadio, decryptageRadio;
     private ButtonGroup radioGroup;
     private JTextField clefField, inputText, outputText;
-    private JButton cryptageButton, playfairButton;
 
     public CryptageApp() {
         setTitle("Cryptage Application");
