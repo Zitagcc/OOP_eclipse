@@ -3,19 +3,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Playfair extends Cryptage {
-    private char[][] matriceDeCryptage;
+    private char[][] matrix;
 
     public Playfair(String clef) {
         super(clef);
-        this.matriceDeCryptage = generateMatriceDeCryptage(clef);
+        this.matrix = generatematrix(clef);
     }
 
     @Override
     public String toString() {
         StringBuilder matrixString = new StringBuilder();
-        for (int i = 0; i < matriceDeCryptage.length; i++) {
-            for (int j = 0; j < matriceDeCryptage[i].length; j++) {
-                matrixString.append(matriceDeCryptage[i][j]);
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                matrixString.append(matrix[i][j]);
             }
             matrixString.append(" ");
         }
@@ -36,16 +36,16 @@ public class Playfair extends Cryptage {
 
             if (indices1[0] == indices2[0]) {
                 // Même ligne
-                encryptedText.append(matriceDeCryptage[indices1[0]][(indices1[1] + 1) % 6]);
-                encryptedText.append(matriceDeCryptage[indices2[0]][(indices2[1] + 1) % 6]);
+                encryptedText.append(matrix[indices1[0]][(indices1[1] + 1) % 6]);
+                encryptedText.append(matrix[indices2[0]][(indices2[1] + 1) % 6]);
             } else if (indices1[1] == indices2[1]) {
                 // Même colonne
-                encryptedText.append(matriceDeCryptage[(indices1[0] + 1) % 6][indices1[1]]);
-                encryptedText.append(matriceDeCryptage[(indices2[0] + 1) % 6][indices2[1]]);
+                encryptedText.append(matrix[(indices1[0] + 1) % 6][indices1[1]]);
+                encryptedText.append(matrix[(indices2[0] + 1) % 6][indices2[1]]);
             } else {
                 // Ni même ligne ni même colonne
-                encryptedText.append(matriceDeCryptage[indices1[0]][indices2[1]]);
-                encryptedText.append(matriceDeCryptage[indices2[0]][indices1[1]]);
+                encryptedText.append(matrix[indices1[0]][indices2[1]]);
+                encryptedText.append(matrix[indices2[0]][indices1[1]]);
             }
         }
 
@@ -65,16 +65,16 @@ public class Playfair extends Cryptage {
 
             if (indices1[0] == indices2[0]) {
                 // Même ligne
-                decryptedText.append(matriceDeCryptage[indices1[0]][(indices1[1] + 5) % 6]);
-                decryptedText.append(matriceDeCryptage[indices2[0]][(indices2[1] + 5) % 6]);
+                decryptedText.append(matrix[indices1[0]][(indices1[1] + 5) % 6]);
+                decryptedText.append(matrix[indices2[0]][(indices2[1] + 5) % 6]);
             } else if (indices1[1] == indices2[1]) {
                 // Même colonne
-                decryptedText.append(matriceDeCryptage[(indices1[0] + 5) % 6][indices1[1]]);
-                decryptedText.append(matriceDeCryptage[(indices2[0] + 5) % 6][indices2[1]]);
+                decryptedText.append(matrix[(indices1[0] + 5) % 6][indices1[1]]);
+                decryptedText.append(matrix[(indices2[0] + 5) % 6][indices2[1]]);
             } else {
                 // Ni même ligne ni même colonne
-                decryptedText.append(matriceDeCryptage[indices1[0]][indices2[1]]);
-                decryptedText.append(matriceDeCryptage[indices2[0]][indices1[1]]);
+                decryptedText.append(matrix[indices1[0]][indices2[1]]);
+                decryptedText.append(matrix[indices2[0]][indices1[1]]);
             }
         }
 
@@ -97,9 +97,9 @@ public class Playfair extends Cryptage {
     }
 
     private int[] findIndices(char c) {
-        for (int i = 0; i < matriceDeCryptage.length; i++) {
-            for (int j = 0; j < matriceDeCryptage[i].length; j++) {
-                if (matriceDeCryptage[i][j] == c) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if (matrix[i][j] == c) {
                     return new int[] {i, j};
                 }
             }
@@ -107,7 +107,7 @@ public class Playfair extends Cryptage {
         return null;
     }
 
-    private char[][] generateMatriceDeCryptage(String clef) {
+    private char[][] generatematrix(String clef) {
         char[][] matrice = new char[6][6];
         String alphabetDeCryptage = clef.toLowerCase();
 
@@ -146,4 +146,19 @@ public class Playfair extends Cryptage {
 
         return matrice;
     }
+    
+	public static void main(String[] args) { 
+        Cryptage cryptagePlayfair = new Playfair("Playfair");
+	  
+		String texte = "hello world"; 
+		System.out.println("Texte original: " + texte);
+	    
+		String texteCrypte = cryptagePlayfair.cryptage(texte); 
+		System.out.println("Texte crypté: " + texteCrypte);
+			  	  
+		String texteDecrypte = cryptagePlayfair.deCryptage(texteCrypte); 
+		System.out.println("Texte décrypté: " + texteDecrypte);
+			 
+	}
+	 
 }
