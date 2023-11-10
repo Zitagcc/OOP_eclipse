@@ -104,8 +104,8 @@ public class Playfair extends Cryptage {
 	            //premier caractère de la même ligne.
 	                   
 	            if (pos1[0] == pos2[0] && pos1[0]!=100) {
-	            	newC1 = matrix[pos1[0]][(pos1[1] + 2) % 6];
-	                newC2 = matrix[pos2[0]][(pos2[1] + 2) % 6];
+	            	newC1 = matrix[pos1[0]][(pos1[1] + 1) % 6];
+	                newC2 = matrix[pos2[0]][(pos2[1] + 1) % 6];
 	            }
 	            // case 2
 	            //Si les deux caractères sont sur la même colonne de la matrice, ils sont remplacés par les deux
@@ -136,10 +136,58 @@ public class Playfair extends Cryptage {
 	    }
 
 	@Override
-	public String deCryptage(String s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public String deCryptage(String texte) {
+		if (texte.length()==1) {
+        	return texte;
+        }
+        
+        StringBuilder texteDecrypte = new StringBuilder();
+        for (int i = 0; i < texte.length(); i += 2) {
+            char c1 = texte.charAt(i);
+            char c2 = (i + 1 < texte.length()) ? texte.charAt(i + 1) : ' ';
+
+            int[] pos1 = findPosition(c1);
+            int[] pos2 = findPosition(c2);
+            
+            char newC1 = matrix[0][0], newC2 = matrix[0][0];
+            
+            
+            // case 1
+            //Si les deux caractères sont sur la même ligne de la matrice, ils sont remplacés 
+            //par les deux caractères suivants dans la ligne. Le caractère suivant le dernier caractère de la ligne est le
+            //premier caractère de la même ligne.
+                   
+            if (pos1[0] == pos2[0] && pos1[0]!=100) {
+            	newC1 = matrix[pos1[0]][(pos1[1] + 5) % 6];
+                newC2 = matrix[pos2[0]][(pos2[1] + 5) % 6];
+            }
+            // case 2
+            //Si les deux caractères sont sur la même colonne de la matrice, ils sont remplacés par les deux
+            //caractères suivants dans la colonne. Le caractère qui suit le dernier caractère de la colonne est
+            //le premier caractère de la même colonne.
+            else if (pos1[1] == pos2[1] && pos1[1]!=100) {
+            	 newC1 = matrix[(pos1[0] + 5) % 6][pos1[1]];
+            	 newC2 = matrix[(pos2[0] + 5) % 6][pos2[1]];
+            }
+            // case 3
+            //Si les deux caractères ne sont ni sur la même ligne, ni sur la même colonne, on remplace le
+            //premier caractère par le caractère qui est sur la même ligne que le premier caractère et 
+            //la même colonne que le second, et on remplace le deuxième caractère par le caractère qui est 
+            //sur la même ligne que le deuxième caractère et la même colonne que le premier.
+            else if (pos1[0] != pos2[0] && pos1[1] != pos2[1]) {
+            	if (pos1[0] == 100 || pos2[0] == 100) {
+            		newC1 = c1;
+	                newC2 = c2;
+            	}
+            	else {           		
+            		newC1 = matrix[pos1[0]][pos2[1]];
+	                newC2 = matrix[pos2[0]][pos1[1]];
+            	}
+            }
+            texteDecrypte.append(newC1).append(newC2);
+        }
+        return texteDecrypte.toString();
+	    }
 	
 	private int[] findPosition(char c) {
         int[] pos = new int[2];
@@ -158,8 +206,6 @@ public class Playfair extends Cryptage {
     }
 	
 
-   
-    
 	public static void main(String[] args) { 
         Cryptage cryptagePlayfair = new Playfair("Playfair");
 	  
@@ -170,8 +216,8 @@ public class Playfair extends Cryptage {
 		  String texteCrypte = cryptagePlayfair.cryptage(texte);
 		  System.out.println("Texte crypté: " + texteCrypte);
 		  
-		  //String texteDecrypte = cryptagePlayfair.deCryptage(texteCrypte);
-		  //System.out.println("Texte décrypté: " + texteDecrypte);
+		  String texteDecrypte = cryptagePlayfair.deCryptage(texteCrypte);
+		  System.out.println("Texte décrypté: " + texteDecrypte);
 		 
 			 
 	}
