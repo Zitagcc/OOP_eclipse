@@ -1,4 +1,5 @@
 package oop_tp2;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,156 +10,172 @@ public class Playfair extends Cryptage {
         super(clef);
         this.matrix = generatematrix(clef);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder matrixString = new StringBuilder();
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                matrixString.append(matrix[i][j]);
-            }
-            matrixString.append(" ");
-        }
-
-        return "Cryptage Playfair\nMot Clef: " + clef + "\nMatrice de cryptage : " + matrixString.toString();
-    }
-
-    @Override
-    public String cryptage(String s) {
-        StringBuilder encryptedText = new StringBuilder();
-        String preparedText = prepareText(s);
-
-        for (int i = 0; i < preparedText.length(); i += 2) {
-            char c1 = preparedText.charAt(i);
-            char c2 = preparedText.charAt(i + 1);
-            int[] indices1 = findIndices(c1);
-            int[] indices2 = findIndices(c2);
-
-            if (indices1[0] == indices2[0]) {
-                // Même ligne
-                encryptedText.append(matrix[indices1[0]][(indices1[1] + 1) % 6]);
-                encryptedText.append(matrix[indices2[0]][(indices2[1] + 1) % 6]);
-            } else if (indices1[1] == indices2[1]) {
-                // Même colonne
-                encryptedText.append(matrix[(indices1[0] + 1) % 6][indices1[1]]);
-                encryptedText.append(matrix[(indices2[0] + 1) % 6][indices2[1]]);
-            } else {
-                // Ni même ligne ni même colonne
-                encryptedText.append(matrix[indices1[0]][indices2[1]]);
-                encryptedText.append(matrix[indices2[0]][indices1[1]]);
-            }
-        }
-
-        return encryptedText.toString();
-    }
-
-    @Override
-    public String deCryptage(String s) {
-        StringBuilder decryptedText = new StringBuilder();
-        String preparedText = prepareText(s);
-
-        for (int i = 0; i < preparedText.length(); i += 2) {
-            char c1 = preparedText.charAt(i);
-            char c2 = preparedText.charAt(i + 1);
-            int[] indices1 = findIndices(c1);
-            int[] indices2 = findIndices(c2);
-
-            if (indices1[0] == indices2[0]) {
-                // Même ligne
-                decryptedText.append(matrix[indices1[0]][(indices1[1] + 5) % 6]);
-                decryptedText.append(matrix[indices2[0]][(indices2[1] + 5) % 6]);
-            } else if (indices1[1] == indices2[1]) {
-                // Même colonne
-                decryptedText.append(matrix[(indices1[0] + 5) % 6][indices1[1]]);
-                decryptedText.append(matrix[(indices2[0] + 5) % 6][indices2[1]]);
-            } else {
-                // Ni même ligne ni même colonne
-                decryptedText.append(matrix[indices1[0]][indices2[1]]);
-                decryptedText.append(matrix[indices2[0]][indices1[1]]);
-            }
-        }
-
-        return decryptedText.toString();
-    }
-
-    private String prepareText(String text) {
-        // Supprime les espaces et convertit en lettres minuscules
-        text = text.replaceAll(" ", "").toLowerCase();
-
-        // Remplace 'j' par 'i' dans le texte
-        text = text.replace("j", "i");
-
-        // Assure une longueur pair en ajoutant un 'x' à la fin si nécessaire
-        if (text.length() % 2 != 0) {
-            text += "x";
-        }
-
-        return text;
-    }
-
-    private int[] findIndices(char c) {
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] == c) {
-                    return new int[] {i, j};
-                }
-            }
-        }
-        return null;
-    }
-
-    private char[][] generatematrix(String clef) {
+    
+    private char[][] generatematrix(String motClef) {
         char[][] matrice = new char[6][6];
-        String alphabetDeCryptage = clef.toLowerCase();
+        
+        String alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+        
+        int motClefLength = motClef.length();
+        
+        int currentIndex = 0;
+        boolean[] used = new boolean[36];
 
-        // Remplit la matrice avec le mot-clef
-        int row = 0;
-        int col = 0;
-
-        for (char c : alphabetDeCryptage.toCharArray()) {
-            if (c >= 'a' && c <= 'z') {
-                if (row == 6) {
-                    break;
-                }
-                matrice[row][col] = c;
-                col++;
-                if (col == 6) {
-                    col = 0;
-                    row++;
-                }
+        for (int i = 0; i < motClefLength; i++) {
+            char c = Character.toLowerCase(motClef.charAt(i));    
+            
+            if (c >= 'a' && c <= 'z' && !used[c - 'a']) {
+                matrice[currentIndex / 6][currentIndex % 6] = c;
+                used[c - 'a'] = true;
+                currentIndex++;
+            }
+            else if( c < 'a' && c > 'z' && !used[c+25 - 48]) {
+            	matrice[currentIndex / 6][currentIndex % 6] = c;
+                used[c +25 - 48] = true;
+                currentIndex++;  	
             }
         }
 
-        // Remplit la matrice avec le reste de l'alphabet
-        for (char c = 'a'; c <= 'z'; c++) {
-            if (alphabetDeCryptage.indexOf(c) == -1) {
-                if (row == 6) {
-                    break;
-                }
-                matrice[row][col] = c;
-                col++;
-                if (col == 6) {
-                    col = 0;
-                    row++;
-                }
-            }
-        }
+		
+		  for (int i = 0; i < alphabet.length(); i++) { 
+			  char c = alphabet.charAt(i); 
+			  //System.out.println(c);
+			  if(i <26) { 
+				  if (!used[c - 'a']) {
+				  matrice[currentIndex / 6][currentIndex % 6] =c; 
+				  used[c - 'a'] = true; currentIndex++; 
+				  } 
+			  }
+			  else{
+				  
+				  matrice[currentIndex / 6][currentIndex % 6] =c; 
+				  used[c +25 - 48] = true; currentIndex++; 
+				  
+			  }
+			  
+		  }
+		 
+		  System.out.println("Playfair Cipher Key Matrix:");
+			
+			for (int i = 0; i < 6; i++)
+				System.out.println(Arrays.toString(matrice[i]));
 
         return matrice;
     }
     
+    private String pretraiterTexte(String texte) {
+        // Supprimer les espaces et convertir en minuscules
+        // texte = texte.replaceAll(" ", "").toLowerCase();
+        texte = texte.toLowerCase();
+        // Supprimer les caractères non autorisés
+        // texte = texte.replaceAll("[^a-z1-9]", "");
+        // // Remplacer 'j' par 'i'
+        // texte = texte.replace("j", "i");
+        return texte;
+    }
+    
+    
+    
+	@Override
+	public String cryptage(String texte) {
+	        texte = pretraiterTexte(texte);
+	        
+            // case 0
+            // si l’un des caractères ne se trouve pas dans l’alphabet, les deux caractères sont laissés tel quel.
+            // si le premier caractère est le dernier de la chaîne, il est laissé tel quel.
+
+	        if (texte.length()==1) {
+	        	return texte;
+	        }
+	        
+	        StringBuilder texteCrypte = new StringBuilder();
+	        for (int i = 0; i < texte.length(); i += 2) {
+	            char c1 = texte.charAt(i);
+	            char c2 = (i + 1 < texte.length()) ? texte.charAt(i + 1) : ' ';
+
+	            int[] pos1 = findPosition(c1);
+	            int[] pos2 = findPosition(c2);
+	            
+	            char newC1 = matrix[0][0], newC2 = matrix[0][0];
+	            
+	            // case 1
+	            //Si les deux caractères sont sur la même ligne de la matrice, ils sont remplacés 
+	            //par les deux caractères suivants dans la ligne. Le caractère suivant le dernier caractère de la ligne est le
+	            //premier caractère de la même ligne.
+	                   
+	            if (pos1[0] == pos2[0] && pos1[0]!=100) {
+	            	newC1 = matrix[pos1[0]][(pos1[1] + 2) % 6];
+	                newC2 = matrix[pos2[0]][(pos2[1] + 2) % 6];
+	            }
+	            // case 2
+	            //Si les deux caractères sont sur la même colonne de la matrice, ils sont remplacés par les deux
+	            //caractères suivants dans la colonne. Le caractère qui suit le dernier caractère de la colonne est
+	            //le premier caractère de la même colonne.
+	            else if (pos1[1] == pos2[1] && pos1[1]!=100) {
+	            	 newC1 = matrix[(pos1[0] + 1) % 6][pos1[1]];
+	            	 newC2 = matrix[(pos2[0] + 1) % 6][pos2[1]];
+	            }
+	            // case 3
+	            //Si les deux caractères ne sont ni sur la même ligne, ni sur la même colonne, on remplace le
+	            //premier caractère par le caractère qui est sur la même ligne que le premier caractère et 
+	            //la même colonne que le second, et on remplace le deuxième caractère par le caractère qui est 
+	            //sur la même ligne que le deuxième caractère et la même colonne que le premier.
+	            else if (pos1[0] != pos2[0] && pos1[1] != pos2[1]) {
+	            	if (pos1[0] == 100 || pos2[0] == 100) {
+	            		newC1 = c1;
+		                newC2 = c2;
+	            	}
+	            	else {           		
+	            		newC1 = (char)(matrix[pos1[0]][pos2[1]]);
+		                newC2 = matrix[pos2[0]][pos1[1]];
+	            	}
+	            }
+	            texteCrypte.append(newC1).append(newC2);
+	        }
+	        return texteCrypte.toString();
+	    }
+
+	@Override
+	public String deCryptage(String s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private int[] findPosition(char c) {
+        int[] pos = new int[2];
+        pos[0] = 100;
+        pos[1] = 100;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (matrix[i][j] == c) {
+                    pos[0] = i;
+                    pos[1] = j;
+                    return pos;
+                }
+            }
+        }
+        return pos;
+    }
+	
+
+   
+    
 	public static void main(String[] args) { 
         Cryptage cryptagePlayfair = new Playfair("Playfair");
 	  
-		String texte = "hello world"; 
+		String texte = "le langage java"; 
 		System.out.println("Texte original: " + texte);
 	    
-		String texteCrypte = cryptagePlayfair.cryptage(texte); 
-		System.out.println("Texte crypté: " + texteCrypte);
-			  	  
-		String texteDecrypte = cryptagePlayfair.deCryptage(texteCrypte); 
-		System.out.println("Texte décrypté: " + texteDecrypte);
+		
+		  String texteCrypte = cryptagePlayfair.cryptage(texte);
+		  System.out.println("Texte crypté: " + texteCrypte);
+		  
+		  //String texteDecrypte = cryptagePlayfair.deCryptage(texteCrypte);
+		  //System.out.println("Texte décrypté: " + texteDecrypte);
+		 
 			 
 	}
+
+
 	 
 }
